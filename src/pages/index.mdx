@@ -1,0 +1,73 @@
+---
+layout: './_layout.astro'
+---
+
+import BasicRender from '../examples/basic-render.astro';
+import BasicState from '../examples/basic-state.astro';
+
+PoV:
+You don't want to use a frontend framework because you think it's overkill.
+You want to use Vanilla JS to manipulate the DOM,
+but then you realize your code gets messy, filled with so many
+`document.createElement`, `element.setAttribute`, & `element.appendChild`.
+You're considering a minimal abstraction with an extremely small bundle size.
+
+<h2 class="text-2xl font-semibold pb-2 mt-10">Render</h2>
+<p class="pb-4">I know this is less readable compared to JSX. 🤪</p>
+
+```astro
+<div id="example-render"></div>
+
+<script>
+  const myElement = document.querySelector('#example-render');
+
+  $(myElement, { className: 'bg-yellow-300 rounded my-3 p-3' }, [
+    $('div', {}, 'Hello world!'),
+    $('ul', { className: 'list-disc pl-5' }, [
+      $('li', {}, 'Foo'),
+      $('li', {}, ['Bar ', $('b', { className: 'font-bold' }, 'Baz')]),
+    ]),
+  ]);
+</script>
+```
+
+<BasicRender />
+
+<h2 class="text-2xl font-semibold pb-2 mt-10">State</h2>
+<p class="pb-4">You choose which HTML element should get re-rendered.</p>
+
+```astro
+<div id="example-state"></div>
+
+<script>
+  const MyComponent = (props: number = 1) => {
+    const [counter, ref] = $.createState(props);
+
+    return $('div', { className: 'bg-orange-300 p-2 rounded flex gap-2' }, [
+      $('div',
+        { ref }, // 👈 put ref in any element you want to re-render
+        ['Count: ', counter.get]),
+      $('div',
+        { className: 'ml-auto' },
+        'No re-rendered here'),
+      $('button',
+        { onClick: () => counter.set((prev) => prev + 1) },
+        'Increment'
+      ),
+    ]);
+  };
+
+
+  $(
+    document.querySelector('#example-state'),
+    { className: 'bg-yellow-300 rounded my-3 p-3 space-y-2' },
+    [
+      MyComponent,
+      MyComponent,
+      MyComponent(30),
+    ],
+  );
+</script>
+```
+
+<BasicState />

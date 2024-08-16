@@ -1,0 +1,39 @@
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="generator" content={Astro.generator} />
+    <title>Dom Dom Factory</title>
+  </head>
+  <body class="px-3.5 py-6 md:py-8 max-w-2xl mx-auto transition-[padding]">
+    <h1 class="border-b mb-5 font-semibold">Dom Dom Factory 🏭</h1>
+    <slot />
+    <div class="h-10"></div>
+  </body>
+</html>
+
+<style is:global>
+  body {
+    @apply text-sm;
+  }
+
+  a {
+    @apply text-indigo-600 underline decoration-dashed decoration-indigo-300;
+    &:hover {
+      @apply decoration-solid decoration-indigo-600;
+    }
+  }
+
+  code {
+    @apply bg-gray-200 px-1 py-px rounded text-xs;
+  }
+  pre.astro-code {
+    font-size: 0.7rem;
+    line-height: 1rem;
+    @apply rounded p-3.5 sm:text-xs;
+    > code {
+      all: unset;
+    }
+  }
+</style>

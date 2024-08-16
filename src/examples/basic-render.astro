@@ -1,0 +1,15 @@
+<div id="example-basic-render"></div>
+
+<script>
+  import { $ } from '../../lib/dom';
+
+  const exampleBasic = document.querySelector('#example-basic-render')! as HTMLDivElement;
+
+  $(exampleBasic, { className: 'bg-yellow-300 rounded my-3 p-3' }, [
+    $('div', {}, 'Hello world!'),
+    $('ul', { className: 'list-disc pl-5' }, [
+      $('li', {}, 'Foo'),
+      $('li', {}, ['Bar ', $('b', { className: 'font-bold' }, 'Baz')]),
+    ]),
+  ]);
+</script>
