@@ -7,7 +7,8 @@
     "start": "astro dev",
     "build": "astro check && astro build",
     "preview": "astro preview",
-    "astro": "astro"
+    "astro": "astro",
+    "build:lib": "bun ./script/build.ts && tsc ./output/dom.ts --target ESNext --module NodeNext --moduleResolution NodeNext --skipLibCheck && bunx uglify-js ./output/dom.js --output ./output/dom.min.js --compress --mangle"
   },
   "dependencies": {
     "@astrojs/check": "^0.9",
@@ -16,5 +17,8 @@
     "astro": "^4.12",
     "tailwindcss": "^3.4.7",
     "typescript": "^5.5"
+  },
+  "devDependencies": {
+    "@types/node": "^22.4.0"
   }
 }
