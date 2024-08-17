@@ -8,7 +8,7 @@ type Props<TElement> = Record<string & {}, any> &
     Record<`on${Capitalize<keyof HTMLElementEventMap>}`, EventListenerOrEventListenerObject>
   > &
   Partial<{
-    className: string;
+    className: string | boolean | null | Array<string | boolean | undefined | null>;
     style: Partial<Record<keyof CSSStyleDeclaration, any>>;
     textContent: string;
     data: Record<string, any>;
@@ -48,6 +48,7 @@ export const $ = <K extends keyof HTMLElementTagNameMap | HTMLElement>(
     if (type === 'all' || type === 'props') {
       for (const [key, value] of Object.entries(propsFinal)) {
         if (value === undefined) continue;
+
         if (key === 'ref') {
           const render_: Ref<Element>['render'] = (type_ = 'all') => {
             if (type_ === 'all' || type_ === 'props') {
@@ -83,24 +84,34 @@ export const $ = <K extends keyof HTMLElementTagNameMap | HTMLElement>(
           const eventName = key.substring(2).toLowerCase();
           element.addEventListener(eventName, value);
           listeners.set(eventName, value);
-        } //
+          continue;
+        }
+
+        if (key === 'className') {
+          if (!value) continue;
+          const classNames = Array.isArray(value) ? value : [value];
+          element.className = classNames.filter(Boolean).join(' ');
+        }
+        //
         else if (key === 'style') {
           for (const [k, v] of Object.entries(value)) {
             if (v === undefined) continue;
             (element.style[k as keyof CSSStyleDeclaration] as any) = v;
           }
-        } //
+        }
+        //
         else if (key === 'data') {
           for (const [k, v] of Object.entries(value)) {
             if (v === undefined) continue;
             (element.dataset[k] as any) = v;
           }
-        } //
+        }
+        //
         else if (key.startsWith('aria')) {
           element.setAttribute(key, String(value));
-        } //
+        }
+        //
         else {
-          if (key === 'className' && !value) continue;
           (element as any)[key] = value;
         }
       }
