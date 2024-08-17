@@ -49,14 +49,18 @@ export const $ = <K extends keyof HTMLElementTagNameMap | HTMLElement>(
       for (const [key, value] of Object.entries(propsFinal)) {
         if (value === undefined) continue;
         if (key === 'ref') {
-          const render_: Ref<Element>['render'] = (type_) => {
-            while (element.attributes.length > 0) {
-              element.removeAttribute(element.attributes[0].name);
+          const render_: Ref<Element>['render'] = (type_ = 'all') => {
+            if (type_ === 'all' || type_ === 'props') {
+              while (element.attributes.length > 0) {
+                element.removeAttribute(element.attributes[0].name);
+              }
+              listeners.forEach((fn, eventName) => {
+                element.removeEventListener(eventName, fn);
+              });
             }
-            element.innerHTML = '';
-            listeners.forEach((fn, eventName) => {
-              element.removeEventListener(eventName, fn);
-            });
+            if (type_ === 'all' || type_ === 'children') {
+              element.innerHTML = '';
+            }
             render(type_);
           };
           const refExposers: Array<
