@@ -9,6 +9,10 @@
     return $('div', { className: 'bg-orange-300 p-2 rounded flex items-center gap-2' }, [
       $('div', { ref: refCounter }, ['Count: ', counter.get]),
       //              ^ put ref in any element you want to re-render
+      $('div', () => ({
+        ref: refCounter,
+        className: ['size-3 rounded-full', counter.current % 2 ? 'bg-white' : 'bg-black'],
+      })),
       $('div', { className: 'ml-auto' }, 'No re-rendered here'),
       $(
         'button',
