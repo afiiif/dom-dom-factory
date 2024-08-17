@@ -5,8 +5,8 @@ import mdx from '@astrojs/mdx';
 
 // https://astro.build/config
 export default defineConfig({
-  site: 'https://afiiif.github.io',
-  base: 'dom-dom-factory',
+  site: process.env.NODE_ENV === 'development' ? undefined : 'https://afiiif.github.io',
+  base: process.env.NODE_ENV === 'development' ? undefined : 'dom-dom-factory',
   integrations: [
     tailwind({
       nesting: true,
