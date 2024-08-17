@@ -2,18 +2,64 @@
 layout: './_layout.astro'
 ---
 
+import { Code } from 'astro:components';
+
 import BasicRender from '../examples/basic-render.astro';
 import BasicState from '../examples/basic-state.astro';
+import ComponentToDo from '../examples/component-to-do.astro';
+
+import CodeAndResultToggle from './_code-and-result-toggle.astro';
 
 PoV:
 You don't want to use a frontend framework because you think it's overkill.
 You want to use Vanilla JS to manipulate the DOM,
 but then you realize your code gets messy, filled with so many
 `document.createElement`, `element.setAttribute`, & `element.appendChild`.
-You're considering a minimal abstraction with an extremely small bundle size.
+You're considering a **minimal abstraction** with an extremely small bundle size (1.57 KB).
 
-<h2 class="text-2xl font-semibold pb-2 mt-10">Render</h2>
-<p class="pb-4">I know this is less readable compared to JSX. 🤪</p>
+<h2 class="text-2xl font-semibold pb-2 mt-11">Comparison</h2>
+<div class="flex gap-2 sm:gap-3 *:flex-1 *:text-center text-xs">
+  <div>
+    <div class="border rounded w-full p-1 sm:p-2 mb-0.5">
+      <div className="relative w-full aspect-square">
+        <div
+          class="absolute rounded-full bg-gray-400 right-0"
+          style={{ width: `${8 * Math.pow(10.53, 0.5)}%`, height: `${8 * Math.pow(10.53, 0.5)}%` }}
+        ></div>
+        <div
+          class="absolute rounded-full bg-gray-400 bottom-0"
+          style={{ width: `${8 * Math.pow(129, 0.5)}%`, height: `${8 * Math.pow(129, 0.5)}%` }}
+        ></div>
+      </div>
+    </div>
+    <div>react + react-dom</div>
+  </div>
+  <div>
+    <div class="border rounded w-full p-1 sm:p-2 mb-0.5">
+      <div className="relative w-full aspect-square flex items-center justify-center">
+        <div
+          class="rounded-full bg-gray-400 right-0"
+          style={{ width: `${8 * Math.pow(85.48, 0.5)}%`, height: `${8 * Math.pow(85.48, 0.5)}%` }}
+        ></div>
+      </div>
+    </div>
+    <div>jQuery</div>
+  </div>
+  <div>
+    <div class="border rounded w-full p-1 sm:p-2 mb-0.5">
+      <div className="relative w-full aspect-square flex items-center justify-center">
+        <div
+          class="rounded-full bg-gray-400 right-0"
+          style={{ width: `${8 * Math.pow(1.57, 0.5)}%`, height: `${8 * Math.pow(1.57, 0.5)}%` }}
+        ></div>
+      </div>
+    </div>
+    <div>dom-dom-factory</div>
+  </div>
+</div>
+
+<h2 class="text-2xl font-semibold pb-2 mt-11">Render</h2>
+<p class="pb-4">Combine the declarative React-like syntax with the flexibility of vanilla JS. 🤪</p>
 
 ```astro
 <div id="example-render"></div>
@@ -33,19 +79,23 @@ You're considering a minimal abstraction with an extremely small bundle size.
 
 <BasicRender />
 
-<h2 class="text-2xl font-semibold pb-2 mt-10">State</h2>
-<p class="pb-4">You choose which HTML element should get re-rendered.</p>
+<h2 class="text-2xl font-semibold pb-2 mt-11">State</h2>
+<p class="pb-4">
+  <>By default, there is no re-rendering at all.</>
+  <br />
+  <>You control which HTML elements should be re-rendered.</>
+</p>
 
 ```astro
 <div id="example-state"></div>
 
 <script>
   const MyComponent = (props: number = 1) => {
-    const [counter, ref] = $.createState(props);
+    const [counter, refCounter] = $.createState(props);
 
     return $('div', { className: 'bg-orange-300 p-2 rounded flex gap-2' }, [
       $('div',
-        { ref }, // 👈 put ref in any element you want to re-render
+        { ref: refCounter }, // 👈 put ref in any element you want to re-render
         ['Count: ', counter.get]),
       $('div',
         { className: 'ml-auto' },
@@ -57,17 +107,142 @@ You're considering a minimal abstraction with an extremely small bundle size.
     ]);
   };
 
-
   $(
     document.querySelector('#example-state'),
     { className: 'bg-yellow-300 rounded my-3 p-3 space-y-2' },
     [
-      MyComponent,
-      MyComponent,
-      MyComponent(30),
+      MyComponent,     // A function (a.k.a component)
+      MyComponent(),   // An element
+      MyComponent(30), // An element
     ],
   );
 </script>
 ```
 
 <BasicState />
+
+<h2 class="text-2xl font-semibold pb-2 mt-11">Global State & Local State</h2>
+<p class="pb-4">Here is an example of a simple to-do app that covers both global & local state.</p>
+
+<CodeAndResultToggle>
+
+```astro
+<div id="example-to-do"></div>
+
+<script>
+  // Global state
+  const [search, refSearch] = $.createState('');
+  const SearchElement = $('input', {
+    placeholder: 'Search on both...',
+    className: 'p-2 rounded w-full',
+    onInput: (e) => search.set(e.target.value.toLowerCase()),
+  });
+
+  const ToDo = (props) => {
+    // Local state
+    const [todos, refTodos] = $.createState(props.initialToDos);
+
+    return $('div', { className: 'flex-1 flex flex-col' }, [
+      $('h3', { className: 'text-lg font-bold' }, [props.heading, "'s To-Do:"]),
+      $(
+        'ul',
+        {
+          className: 'space-y-1 pb-3 pt-1 flex-1',
+          ref: [refTodos, refSearch], // 👈 Re-render when todos or search changed
+        },
+        () => {
+          return todos.current.map((todo) => {
+            if (!todo.title.toLowerCase().includes(search.get())) return null;
+            return $('li', {}, [
+              $('div', { className: 'flex gap-1.5' }, [
+                $('button', {
+                  className: 'px-2 bg-rose-300 rounded',
+                  textContent: 'x',
+                  onClick: () => todos.set((prev) => prev.filter((item) => item !== todo)),
+                }),
+                $('div', {}, todo.title),
+              ]),
+            ]);
+          });
+        }
+      ),
+      AddToDo((newTodo) => todos.set((prev) => [...prev, newTodo])),
+    ]);
+  };
+
+  const AddToDo = (onSubmit) => {
+    const ref = {};
+
+    return $(
+      'form',
+      {
+        className: 'bg-orange-300 p-1.5 rounded space-y-1.5 *:w-full *:rounded *:px-2.5 *:py-1',
+        onSubmit: (e) => {
+          e.preventDefault();
+          if (!ref.element.value) {
+            ref.element.focus();
+            return;
+          }
+          onSubmit({ title: ref.element.value });
+          e.target.reset();
+          if (SearchElement.value) {
+            search.set('');
+            SearchElement.value = '';
+          }
+        },
+      },
+      [
+        $('input', { ref, placeholder: 'Input title...', className: 'p-2 rounded' }),
+        $('button', { className: 'px-2 bg-emerald-200 rounded' }, ['Add']),
+      ]
+    );
+  };
+
+  $(
+    document.querySelector('#example-to-do'),
+    { className: 'p-2 bg-yellow-300 rounded' },
+    [
+      SearchElement,
+      $('div', { className: 'flex gap-2 pt-3 items-stretch' }, [
+        ToDo({
+          heading: 'Foo',
+          initialToDos: [{ title: 'Buy milk' }, { title: 'Buy tomato' }, { title: 'Go to work' }],
+        }),
+        ToDo({
+          heading: 'Bar',
+          initialToDos: [{ title: 'Eat tomato' }, { title: 'Buy chocolate' }],
+        }),
+      ]),
+    ]
+  );
+</script>
+
+```
+
+<ComponentToDo slot="result" />
+
+</CodeAndResultToggle>
+
+<h2 class="text-2xl font-semibold pb-2 mt-11">Installation</h2>
+
+<h3 class="text-base font-medium pt-1.5">TypeScript Project:</h3>
+<p class="pt-2.5">
+  <>You can copy the code here:</>
+  <br />
+  <a href="https://github.com/afiiif/dom-dom-factory/blob/main/lib/dom.ts">
+    https://github.com/afiiif/dom-dom-factory/blob/main/lib/dom.ts
+  </a>
+</p>
+
+<h3 class="text-base font-medium pt-3.5">JavaScript Project:</h3>
+<p class="py-2.5">
+  <>Add this minified script 👇 </>
+  <b>Only 1.57 KB</b>
+</p>
+<div class="[&_code]:!whitespace-pre-wrap [&_code]:!break-all">
+  <Code
+    lang="js"
+    wrap={false}
+    code={`{let v=(e,p={},u=[])=>{let y=e instanceof HTMLElement?e:document.createElement(e),m=(e="all")=>{var t="function"==typeof p?p():p;let r=new Map;if("all"===e||"props"===e)for(var[n,a]of Object.entries(t))if(void 0!==a)if("ref"===n){var i,o=(e="all")=>{if("all"===e||"props"===e){for(;0<y.attributes.length;)y.removeAttribute(y.attributes[0].name);r.forEach((e,t)=>{y.removeEventListener(t,e)})}"all"!==e&&"children"!==e||(y.innerHTML=""),m(e)};for(i of Array.isArray(a)?a:[a])"function"==typeof i?i({element:y,render:o}):i instanceof Map?i.set(y,o):(i.element=y,i.render=o)}else if(n.startsWith("on")){var s=n.substring(2).toLowerCase();y.addEventListener(s,a),r.set(s,a)}else if("style"===n)for(var[f,l]of Object.entries(a))void 0!==l&&(y.style[f]=l);else if("data"===n)for(var[c,d]of Object.entries(a))void 0!==d&&(y.dataset[c]=d);else n.startsWith("aria")?y.setAttribute(n,String(a)):"className"===n&&!a||(y[n]=a);"all"!==e&&"children"!==e||v.append(y,u)};return m(),y};v.append=(e,t)=>{var r,n;for(r of Array.isArray(t)?t:[t])r instanceof HTMLElement?e.appendChild(r):"string"==typeof r||"number"==typeof r?e.appendChild(document.createTextNode(String(r))):"function"==typeof r&&((n=r())instanceof HTMLElement?e.appendChild(n):"string"==typeof n||"number"==typeof n?e.appendChild(document.createTextNode(String(n))):Array.isArray(n)&&v.append(e,n));return e},v.createRef=()=>{let e=new Map;return Object.assign(e,{render:t=>{e.forEach(e=>e(t))}})},v.createState=e=>{let t=v.createRef(),r={current:e,get:()=>r.current,set:e=>{r.current="function"==typeof e?e(r.current):e,t.render()}};return[r,t]},window.$=v}`}
+  />
+</div>

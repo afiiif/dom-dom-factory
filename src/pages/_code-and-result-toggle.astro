@@ -1,0 +1,49 @@
+<section>
+  <div class="code-and-result-toggler"></div>
+  <div class="hidden">
+    <slot />
+  </div>
+  <div>
+    <slot name="result" />
+  </div>
+</section>
+
+<script>
+  import { $, type Ref } from '../../lib/dom';
+
+  document.querySelectorAll('.code-and-result-toggler').forEach((element) => {
+    const refBtnViewCode = {} as Ref<HTMLButtonElement>;
+    const refBtnViewResult = {} as Ref<HTMLButtonElement>;
+
+    $(element as HTMLDivElement, { className: 'flex gap-4 border-b mb-3.5 *:px-2 *:py-1' }, [
+      $(
+        'button',
+        {
+          ref: refBtnViewCode,
+          className: 'font-medium text-gray-500',
+          onClick: () => {
+            element.parentElement!.children[1].classList.remove('hidden');
+            element.parentElement!.children[2].classList.add('hidden');
+            refBtnViewCode.element.className = 'border-b -mb-px border-b-blue-600 font-semibold';
+            refBtnViewResult.element.className = 'font-medium text-gray-500';
+          },
+        },
+        'View Code'
+      ),
+      $(
+        'button',
+        {
+          ref: refBtnViewResult,
+          className: 'border-b -mb-px border-b-blue-600 font-semibold',
+          onClick: () => {
+            element.parentElement!.children[1].classList.add('hidden');
+            element.parentElement!.children[2].classList.remove('hidden');
+            refBtnViewCode.element.className = 'font-medium text-gray-500';
+            refBtnViewResult.element.className = 'border-b -mb-px border-b-blue-600 font-semibold';
+          },
+        },
+        'View Result'
+      ),
+    ]);
+  });
+</script>
