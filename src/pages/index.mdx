@@ -23,13 +23,17 @@ You're considering a **minimal abstraction** with an extremely small bundle size
     <div class="border rounded w-full p-1 sm:p-2 mb-0.5">
       <div class="relative w-full aspect-square">
         <div
-          class="absolute rounded-full bg-orange-400 right-0"
+          class="absolute rounded-full bg-orange-400 flex items-center justify-center right-0"
           style={{ width: `${8 * Math.pow(10.53, 0.5)}%`, height: `${8 * Math.pow(10.53, 0.5)}%` }}
-        ></div>
+        >
+          {10}
+        </div>
         <div
-          class="absolute rounded-full bg-orange-400 bottom-0"
+          class="absolute rounded-full bg-orange-400 flex items-center justify-center bottom-0"
           style={{ width: `${8 * Math.pow(129, 0.5)}%`, height: `${8 * Math.pow(129, 0.5)}%` }}
-        ></div>
+        >
+          {129}
+        </div>
       </div>
     </div>
     <div>react + react-dom</div>
@@ -38,9 +42,11 @@ You're considering a **minimal abstraction** with an extremely small bundle size
     <div class="border rounded w-full p-1 sm:p-2 mb-0.5">
       <div class="relative w-full aspect-square flex items-center justify-center">
         <div
-          class="rounded-full bg-orange-400 right-0"
+          class="rounded-full bg-orange-400 flex items-center justify-center right-0"
           style={{ width: `${8 * Math.pow(85.48, 0.5)}%`, height: `${8 * Math.pow(85.48, 0.5)}%` }}
-        ></div>
+        >
+          {85}
+        </div>
       </div>
     </div>
     <div>jQuery</div>
@@ -254,8 +260,7 @@ You're considering a **minimal abstraction** with an extremely small bundle size
   />
 </div>
 
-<hr class="mt-16 mb-2" />
-<footer class="text-right">
+<footer class="text-right border-t pt-2 mt-16">
   {'By '}
   <a href="https://afiiif.github.io/" class="font-medium">
     {'Afifudin'}
