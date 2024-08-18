@@ -6,8 +6,8 @@
   type ToDoType = { title: string };
 
   // Global state
-  const [search, refSearch] = $.createState('');
-  const SearchElement = $('input', {
+  const search = $.createState('');
+  const searchElement = $('input', {
     placeholder: 'Search on both...',
     className: 'p-2 rounded w-full',
     onInput: (e) => search.set((e.target as HTMLInputElement).value.toLowerCase()),
@@ -15,7 +15,7 @@
 
   const ToDo = (props: { heading: string; initialToDos: ToDoType[] }) => {
     // Local state
-    const [todos, refTodos] = $.createState(props.initialToDos);
+    const todos = $.createState(props.initialToDos);
 
     return $('div', { className: 'flex-1 flex flex-col' }, [
       $('h3', { className: 'text-lg font-bold' }, [props.heading, "'s To-Do:"]),
@@ -23,11 +23,11 @@
         'ul',
         {
           className: 'space-y-1 pb-3 pt-1 flex-1',
-          ref: [refTodos, refSearch], // 👈 Re-render when todos or search changed
+          ref: [todos.ref, search.ref], // 👈 Re-render when todos or search changed
         },
         () => {
           return todos.current.map((todo) => {
-            if (!todo.title.toLowerCase().includes(search.get())) return null;
+            if (!todo.title.toLowerCase().includes(search.current)) return null;
             return $('li', {}, [
               $('div', { className: 'flex gap-1.5' }, [
                 $('button', {
@@ -60,9 +60,9 @@
           }
           onSubmit({ title: ref.element.value });
           (e.target as HTMLFormElement).reset();
-          if (SearchElement.value) {
+          if (searchElement.value) {
             search.set('');
-            SearchElement.value = '';
+            searchElement.value = '';
           }
         },
       },
@@ -77,7 +77,7 @@
     document.querySelector('#example-to-do')! as HTMLDivElement,
     { className: 'p-2 bg-yellow-300 rounded' },
     [
-      SearchElement,
+      searchElement,
       $('div', { className: 'flex gap-2 pt-3 items-stretch' }, [
         ToDo({
           heading: 'Foo',

@@ -160,6 +160,7 @@ $.createState = <T>(initialValue: T) => {
   const ref = $.createRef();
   const value = {
     current: initialValue,
+    ref,
     get: () => value.current,
     set: (newValue: T | ((prev: T) => T)) => {
       value.current =
@@ -167,5 +168,5 @@ $.createState = <T>(initialValue: T) => {
       ref.render();
     },
   };
-  return [value, ref] as const;
+  return value;
 };

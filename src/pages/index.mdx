@@ -96,17 +96,17 @@ You're considering a **minimal abstraction** with an extremely small bundle size
 <div id="example-state"></div>
 
 <script>
-  const MyComponent = (props = 1) => {
-    const [counter, refCounter] = $.createState(props);
+  const MyComponent = (initialCounter = 1) => {
+    const counter = $.createState(initialCounter);
 
     return $('div', { className: 'bg-orange-300 p-2 rounded flex gap-2' }, [
       $('div',
-        { ref: refCounter }, // 👈 put ref in any element you want to re-render
+        { ref: counter.ref }, // 👈 put ref in any element you want to re-render
         ['Count: ', counter.get]),
       $('div',
         // 👇 Use function for dynamic props
         () => ({
-          ref: refCounter,
+          ref: counter.ref,
           className: ['size-3 rounded-full', counter.current % 2 ? 'bg-white' : 'bg-black'],
         })
       ),
@@ -144,28 +144,28 @@ You're considering a **minimal abstraction** with an extremely small bundle size
 
 <script>
   // Global state
-  const [search, refSearch] = $.createState('');
-  const SearchElement = $('input', {
+  const search = $.createState('');
+  const searchElement = $('input', {
     placeholder: 'Search on both...',
     className: 'p-2 rounded w-full',
     onInput: (e) => search.set(e.target.value.toLowerCase()),
   });
 
-  const ToDo = (props) => {
+  const ToDo = ({ heading, initialToDos }) => {
     // Local state
-    const [todos, refTodos] = $.createState(props.initialToDos);
+    const todos = $.createState(initialToDos);
 
     return $('div', { className: 'flex-1 flex flex-col' }, [
-      $('h3', { className: 'text-lg font-bold' }, [props.heading, "'s To-Do:"]),
+      $('h3', { className: 'text-lg font-bold' }, [heading, "'s To-Do:"]),
       $(
         'ul',
         {
           className: 'space-y-1 pb-3 pt-1 flex-1',
-          ref: [refTodos, refSearch], // 👈 Re-render when todos or search changed
+          ref: [todos.ref, search.ref], // 👈 Re-render when todos or search changed
         },
         () => {
           return todos.current.map((todo) => {
-            if (!todo.title.toLowerCase().includes(search.get())) return null;
+            if (!todo.title.toLowerCase().includes(search.current)) return null;
             return $('li', {}, [
               $('div', { className: 'flex gap-1.5' }, [
                 $('button', {
@@ -198,9 +198,9 @@ You're considering a **minimal abstraction** with an extremely small bundle size
           }
           onSubmit({ title: ref.element.value });
           e.target.reset();
-          if (SearchElement.value) {
+          if (searchElement.value) {
             search.set('');
-            SearchElement.value = '';
+            searchElement.value = '';
           }
         },
       },
@@ -215,7 +215,7 @@ You're considering a **minimal abstraction** with an extremely small bundle size
     document.querySelector('#example-to-do'),
     { className: 'p-2 bg-yellow-300 rounded' },
     [
-      SearchElement,
+      searchElement,
       $('div', { className: 'flex gap-2 pt-3 items-stretch' }, [
         ToDo({
           heading: 'Foo',
@@ -256,7 +256,7 @@ You're considering a **minimal abstraction** with an extremely small bundle size
   <Code
     lang="js"
     wrap={false}
-    code={`{let v=(e,p={},u=[])=>{let y=e instanceof HTMLElement?e:document.createElement(e),m=(e="all")=>{var t="function"==typeof p?p():p;let r=new Map;if("all"===e||"props"===e)for(var[n,a]of Object.entries(t))if(void 0!==a)if("ref"===n){var i,o=(e="all")=>{if("all"===e||"props"===e){for(;0<y.attributes.length;)y.removeAttribute(y.attributes[0].name);r.forEach((e,t)=>{y.removeEventListener(t,e)})}"all"!==e&&"children"!==e||(y.innerHTML=""),m(e)};for(i of Array.isArray(a)?a:[a])"function"==typeof i?i({element:y,render:o}):i instanceof Map?i.set(y,o):(i.element=y,i.render=o)}else if(n.startsWith("on")){var s=n.substring(2).toLowerCase();y.addEventListener(s,a),r.set(s,a)}else if("className"===n)a&&(s=Array.isArray(a)?a:[a],y.className=s.filter(Boolean).join(" "));else if("style"===n)for(var[f,l]of Object.entries(a))void 0!==l&&(y.style[f]=l);else if("data"===n)for(var[c,d]of Object.entries(a))void 0!==d&&(y.dataset[c]=d);else n.startsWith("aria")?y.setAttribute(n,String(a)):y[n]=a;"all"!==e&&"children"!==e||v.append(y,u)};return m(),y};v.append=(e,t)=>{var r,n;for(r of Array.isArray(t)?t:[t])r instanceof HTMLElement?e.appendChild(r):"string"==typeof r||"number"==typeof r?e.appendChild(document.createTextNode(String(r))):"function"==typeof r&&((n=r())instanceof HTMLElement?e.appendChild(n):"string"==typeof n||"number"==typeof n?e.appendChild(document.createTextNode(String(n))):Array.isArray(n)&&v.append(e,n));return e},v.createRef=()=>{let e=new Map;return Object.assign(e,{render:t=>{e.forEach(e=>e(t))}})},v.createState=e=>{let t=v.createRef(),r={current:e,get:()=>r.current,set:e=>{r.current="function"==typeof e?e(r.current):e,t.render()}};return[r,t]},window.$=v}`}
+    code={`{let v=(e,p={},u=[])=>{let y=e instanceof HTMLElement?e:document.createElement(e),m=(e="all")=>{var t="function"==typeof p?p():p;let r=new Map;if("all"===e||"props"===e)for(var[n,a]of Object.entries(t))if(void 0!==a)if("ref"===n){var i,o=(e="all")=>{if("all"===e||"props"===e){for(;0<y.attributes.length;)y.removeAttribute(y.attributes[0].name);r.forEach((e,t)=>{y.removeEventListener(t,e)})}"all"!==e&&"children"!==e||(y.innerHTML=""),m(e)};for(i of Array.isArray(a)?a:[a])"function"==typeof i?i({element:y,render:o}):i instanceof Map?i.set(y,o):(i.element=y,i.render=o)}else if(n.startsWith("on")){var s=n.substring(2).toLowerCase();y.addEventListener(s,a),r.set(s,a)}else if("className"===n)a&&(s=Array.isArray(a)?a:[a],y.className=s.filter(Boolean).join(" "));else if("style"===n)for(var[f,l]of Object.entries(a))void 0!==l&&(y.style[f]=l);else if("data"===n)for(var[c,d]of Object.entries(a))void 0!==d&&(y.dataset[c]=d);else n.startsWith("aria")?y.setAttribute(n,String(a)):y[n]=a;"all"!==e&&"children"!==e||v.append(y,u)};return m(),y};v.append=(e,t)=>{var r,n;for(r of Array.isArray(t)?t:[t])r instanceof HTMLElement?e.appendChild(r):"string"==typeof r||"number"==typeof r?e.appendChild(document.createTextNode(String(r))):"function"==typeof r&&((n=r())instanceof HTMLElement?e.appendChild(n):"string"==typeof n||"number"==typeof n?e.appendChild(document.createTextNode(String(n))):Array.isArray(n)&&v.append(e,n));return e},v.createRef=()=>{let e=new Map;return Object.assign(e,{render:t=>{e.forEach(e=>e(t))}})},v.createState=e=>{let t=v.createRef(),r={current:e,ref:t,get:()=>r.current,set:e=>{r.current="function"==typeof e?e(r.current):e,t.render()}};return r},window.$=v}`}
   />
 </div>
 
