@@ -24,7 +24,14 @@ type Props<TElement> = Record<string & {}, any> &
         >;
   }>;
 
-type Child = undefined | null | string | number | boolean | HTMLElement | (() => Child | Child[]);
+export type Child =
+  | undefined
+  | null
+  | string
+  | number
+  | boolean
+  | HTMLElement
+  | (() => Child | Child[]);
 
 export const $ = <K extends keyof HTMLElementTagNameMap | HTMLElement>(
   tagNameOrElement: K,
@@ -91,29 +98,31 @@ export const $ = <K extends keyof HTMLElementTagNameMap | HTMLElement>(
           if (!value) continue;
           const classNames = Array.isArray(value) ? value : [value];
           element.className = classNames.filter(Boolean).join(' ');
+          continue;
         }
-        //
-        else if (key === 'style') {
+
+        if (key === 'style') {
           for (const [k, v] of Object.entries(value)) {
             if (v === undefined) continue;
             (element.style[k as keyof CSSStyleDeclaration] as any) = v;
           }
+          continue;
         }
-        //
-        else if (key === 'data') {
+
+        if (key === 'data') {
           for (const [k, v] of Object.entries(value)) {
             if (v === undefined) continue;
             (element.dataset[k] as any) = v;
           }
+          continue;
         }
-        //
-        else if (key.startsWith('aria')) {
+
+        if (key.startsWith('aria')) {
           element.setAttribute(key, String(value));
+          continue;
         }
-        //
-        else {
-          (element as any)[key] = value;
-        }
+
+        (element as any)[key] = value;
       }
     }
 
