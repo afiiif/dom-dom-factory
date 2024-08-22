@@ -5,6 +5,11 @@ const ogImg =
   process.env.NODE_ENV === 'development'
     ? `${Astro.url.origin}/og-img.png`
     : `${Astro.url.origin}/dom-dom-factory/og-img.png`;
+
+interface Props {
+  className?: string;
+}
+const { className = 'max-w-2xl mx-auto' } = Astro.props;
 ---
 
 <html lang="en">
@@ -27,7 +32,7 @@ const ogImg =
     <meta name="twitter:card" content="summary_large_image" />
   </head>
 
-  <body class="px-3.5 py-6 md:py-8 max-w-2xl mx-auto transition-[padding]">
+  <body class:list={['px-3.5 py-6 md:py-8 transition-[padding]', className]}>
     <h1 class="border-b mb-5 font-semibold text-base pb-2">Dom Dom Factory 🏭</h1>
     <slot />
   </body>
