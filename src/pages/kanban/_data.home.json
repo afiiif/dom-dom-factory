@@ -1,0 +1,38 @@
+{
+  "title": "Home",
+  "boards": [
+    {
+      "title": "Backlog",
+      "cards": []
+    },
+    {
+      "title": "To-Do",
+      "cards": [
+        {
+          "title": "Clean bathroom"
+        },
+        {
+          "title": "Repair the window"
+        }
+      ]
+    },
+    {
+      "title": "Inprogress",
+      "cards": [
+        {
+          "title": "Buy groceries",
+          "description": "Get ingredients for the week.",
+          "subtasks": [
+            { "title": "Eggs", "isDone": true },
+            { "title": "Avocado" },
+            { "title": "Coconut" }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Done 🥳",
+      "cards": []
+    }
+  ]
+}

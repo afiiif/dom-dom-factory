@@ -1,0 +1,191 @@
+---
+import Layout from '../_layout.astro';
+---
+
+<Layout className="sm:px-5 md:px-7">
+  <div id="example-kanban"></div>
+</Layout>
+
+<script>
+  import kanbanOffice from './_data.office.json';
+  import kanbanHome from './_data.home.json';
+
+  import { $, type Ref } from '../../../lib/dom';
+
+  // ---
+
+  type TKanban = {
+    title: string;
+    boards: TBoard[];
+  };
+  type TBoard = {
+    title: string;
+    color?: string;
+    cards: TCard[];
+  };
+  type TCard = {
+    title: string;
+    description?: string;
+    subtasks?: Array<{ title: string; isDone?: boolean }>;
+  };
+
+  // ---
+
+  const Kanban = ({ title, boards: initialBoards }: TKanban) => {
+    const cardDragCloneContainer = {} as Ref<HTMLDivElement>;
+    const kanbanContainer = {} as Ref<HTMLDivElement>;
+
+    let draggedElmOrigin = null as null | HTMLDivElement;
+    let draggedElm = null as null | HTMLDivElement;
+    let clonedElm = null as null | HTMLDivElement;
+    let clonedElmForPlaceholder = null as null | HTMLDivElement;
+    let initialCoordinate = { x: 0, y: 0 };
+
+    return $(
+      'section',
+      {
+        ref: kanbanContainer,
+        className: 'mt-2 pb-4 overflow-auto relative',
+        onMouseup: (e) => {
+          if (!clonedElm) return;
+          kanbanContainer.element.classList.remove('dragging', 'select-none');
+          let elm = e.target as HTMLElement;
+          while (elm !== kanbanContainer.element) {
+            if (elm.classList.contains('board') && elm.contains(clonedElmForPlaceholder)) {
+              elm.lastChild!.insertBefore(draggedElm!, clonedElmForPlaceholder);
+              clonedElmForPlaceholder!.remove();
+              break;
+            }
+            elm = elm.parentNode as HTMLElement;
+          }
+          clonedElm.remove();
+          clonedElm = null;
+          clonedElmForPlaceholder = null;
+        },
+        onMousemove: (e) => {
+          if (!clonedElm) return;
+          e.preventDefault();
+
+          kanbanContainer.element.classList.add('dragging', 'select-none');
+          const { clientX, clientY } = e as MouseEvent;
+          clonedElm.style.transform = `rotate(4deg) translate(${clientX - initialCoordinate.x}px, ${clientY - initialCoordinate.y}px)`;
+
+          let elm = e.target as HTMLElement;
+          while (elm !== kanbanContainer.element) {
+            if (elm !== draggedElm!.parentElement) {
+              if (
+                elm.classList.contains('card') &&
+                elm !== draggedElm &&
+                elm !== draggedElm!.previousSibling
+              ) {
+                elm.insertAdjacentElement('afterend', clonedElmForPlaceholder!);
+                break;
+              }
+              if (elm.classList.contains('card-container')) {
+                elm.append(clonedElmForPlaceholder!);
+                break;
+              }
+              if (
+                elm.classList.contains('board-title') &&
+                elm.nextSibling!.firstChild !== draggedElm
+              ) {
+                (elm.nextSibling as HTMLDivElement).prepend(clonedElmForPlaceholder!);
+                break;
+              }
+            }
+            elm = elm.parentNode as HTMLElement;
+          }
+          if (elm === kanbanContainer.element) {
+            clonedElmForPlaceholder!.remove();
+          }
+        },
+      },
+      [
+        $('div', { ref: cardDragCloneContainer, className: 'pointer-events-none' }),
+        $('h2', { className: 'font-semibold text-xl pb-3' }, title),
+        $(
+          'div',
+          { className: 'flex gap-3' },
+          initialBoards.map((board) =>
+            $(
+              'div',
+              {
+                style: { background: board.color },
+                className: 'board rounded-md p-2 w-72 flex-none border bg-gray-100 flex flex-col',
+              },
+              [
+                $(
+                  'h3',
+                  { className: 'board-title font-semibold text-base pb-2 peer' },
+                  board.title
+                ),
+                $(
+                  'div',
+                  {
+                    className: [
+                      'card-container',
+                      'rounded-md space-y-2 flex-1',
+                      '[.dragging_&]:hover:ring-2 [.dragging_.peer:hover~&]:ring-2',
+                    ],
+                  },
+                  board.cards.map((card) =>
+                    $(
+                      'div',
+                      {
+                        className: [
+                          'card',
+                          'bg-white p-3 rounded-md border cursor-grab',
+                          'active:cursor-grabbing active:opacity-50',
+                          '[.dragging_&:active_*]:invisible',
+                        ],
+                        onMousedown: (e) => {
+                          initialCoordinate.x = (e as MouseEvent).clientX;
+                          initialCoordinate.y = (e as MouseEvent).clientY;
+
+                          const target = e.currentTarget as HTMLDivElement;
+                          draggedElm = target;
+                          draggedElmOrigin = target.parentElement as HTMLDivElement;
+
+                          const rect = target.getBoundingClientRect();
+                          clonedElm = $(target.cloneNode(true) as HTMLDivElement, {
+                            style: {
+                              position: 'fixed',
+                              left: rect.left + 'px',
+                              top: rect.top + 'px',
+                              width: rect.width + 'px',
+                              zIndex: 100,
+                            },
+                          });
+                          clonedElmForPlaceholder = $(target.cloneNode(true) as HTMLDivElement, {
+                            style: {
+                              opacity: 0.5,
+                            },
+                          });
+                          cardDragCloneContainer.element.append(clonedElm);
+                        },
+                      },
+                      [
+                        $('div', {}, card.title),
+                        $(
+                          'div',
+                          { className: 'text-xs text-gray-400 pt-1 empty:hidden' },
+                          card.description
+                        ),
+                        $('input', { className: 'border rounded-md mt-2' }),
+                      ]
+                    )
+                  )
+                ),
+              ]
+            )
+          )
+        ),
+      ]
+    );
+  };
+
+  $(document.querySelector('#example-kanban')! as HTMLDivElement, {}, [
+    Kanban(kanbanOffice),
+    Kanban(kanbanHome),
+  ]);
+</script>
