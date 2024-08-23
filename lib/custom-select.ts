@@ -242,9 +242,17 @@ export function createCustomSelect<TOption, TMultiple extends boolean = false>(
     state.isOpen = true;
     onOpenChange(true);
     filterAndRenderOptions('');
+
+    const rect = elm.buttonContainer.getBoundingClientRect();
+    const spaceAbove = rect.top;
+    const spaceBelow = window.innerHeight - rect.bottom;
+    const dropdownPosition = spaceBelow > spaceAbove ? 'below' : 'above';
+
     elm.root.dataset.open = 'true';
     elm.dropdown.dataset.open = 'true';
     elm.buttonContainer.dataset.open = 'true';
+    elm.dropdown.dataset.dropdownPosition = dropdownPosition;
+    elm.buttonContainer.dataset.dropdownPosition = dropdownPosition;
     elm.button.setAttribute('aria-expanded', 'true');
 
     let selectedElement: null | Element = null;
@@ -387,7 +395,9 @@ export function createCustomSelect<TOption, TMultiple extends boolean = false>(
     optionsElements.forEach(($option, index) => {
       $option.className = [
         className.optionItem,
-        state.filteredOptionsFlat[index] === state.selectedOption && className.optionSelected,
+        isMultiple
+          ? state.selectedOptions.has(state.filteredOptionsFlat[index]) && className.optionSelected
+          : state.selectedOption === state.filteredOptionsFlat[index] && className.optionSelected,
         index === state.activeIndex && className.optionHighlighted,
       ]
         .filter(Boolean)
@@ -569,13 +579,13 @@ export function createCustomSelect<TOption, TMultiple extends boolean = false>(
   ------------------------------------------------------------
   */
 
+  type GetValue = TMultiple extends true ? () => Set<TOption> : () => TOption | null;
+
   return {
     open,
     close,
     toggle,
-    getValue: (isMultiple
-      ? () => state.selectedOptions
-      : () => state.selectedOption) as TMultiple extends true ? () => Set<TOption> : () => TOption,
+    getValue: (isMultiple ? () => state.selectedOptions : () => state.selectedOption) as GetValue,
     setValue: (isMultiple
       ? setValueForMultiple
       : setValueWithOptionChecking) as TMultiple extends true
