@@ -1,0 +1,53 @@
+[
+  {
+    "groupName": "In-Training",
+    "options": [
+      { "value": "koromon", "label": "Koromon" },
+      { "value": "tanemon", "label": "Tanemon" },
+      { "value": "tokomon", "label": "Tokomon" },
+      { "value": "tsunomon", "label": "Tsunomon" }
+    ]
+  },
+  {
+    "groupName": "Rookie",
+    "options": [
+      { "value": "agumon", "label": "Agumon" },
+      { "value": "gabumon", "label": "Gabumon" },
+      { "value": "patamon", "label": "Patamon" },
+      { "value": "palmon", "label": "Palmon" },
+      { "value": "biyomon", "label": "Biyomon" },
+      { "value": "elecmon", "label": "Elecmon" },
+      { "value": "penguinmon", "label": "Penguinmon" }
+    ]
+  },
+  {
+    "groupName": "Champion",
+    "options": [
+      { "value": "greymon", "label": "Greymon" },
+      { "value": "garurumon", "label": "Garurumon" },
+      { "value": "angemon", "label": "Angemon" },
+      { "value": "togemon", "label": "Togemon" },
+      { "value": "birdramon", "label": "Birdramon" },
+      { "value": "kabuterimon", "label": "Kabuterimon" },
+      { "value": "airdramon", "label": "Airdramon" },
+      { "value": "bakemon", "label": "Bakemon" },
+      { "value": "centarumon", "label": "Centarumon" },
+      { "value": "frigimon", "label": "Frigimon" },
+      { "value": "tyrannomon", "label": "Tyrannomon" }
+    ]
+  },
+  {
+    "groupName": "Ultimate",
+    "options": [
+      { "value": "metalgreymon", "label": "MetalGreymon" },
+      { "value": "weregarurumon", "label": "WereGarurumon" },
+      { "value": "magnaangemon", "label": "MagnaAngemon" },
+      { "value": "lillymon", "label": "Lillymon" },
+      { "value": "garudamon", "label": "Garudamon" },
+      { "value": "megakabuterimon", "label": "MegaKabuterimon" },
+      { "value": "skullgreymon", "label": "SkullGreymon" },
+      { "value": "digitamamon", "label": "Digitamamon" },
+      { "value": "andromon", "label": "Andromon" }
+    ]
+  }
+]

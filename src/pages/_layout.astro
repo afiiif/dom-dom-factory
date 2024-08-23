@@ -7,9 +7,10 @@ const ogImg =
     : `${Astro.url.origin}/dom-dom-factory/og-img.png`;
 
 interface Props {
+  title?: string;
   className?: string;
 }
-const { className = 'max-w-2xl mx-auto' } = Astro.props;
+const { title = 'Dom Dom Factory', className = 'max-w-2xl mx-auto' } = Astro.props;
 ---
 
 <html lang="en">
@@ -19,9 +20,9 @@ const { className = 'max-w-2xl mx-auto' } = Astro.props;
     <meta name="viewport" content="width=device-width" />
     <meta name="generator" content={Astro.generator} />
 
-    <title>Dom Dom Factory</title>
-    <meta property="og:title" content="Dom Dom Factory" />
-    <meta name="twitter:title" content="Dom Dom Factory" />
+    <title>{title}</title>
+    <meta property="og:title" content={title} />
+    <meta name="twitter:title" content={title} />
 
     <meta name="description" content={description} />
     <meta property="og:description" content={description} />
@@ -33,7 +34,6 @@ const { className = 'max-w-2xl mx-auto' } = Astro.props;
   </head>
 
   <body class:list={['px-3.5 py-6 md:py-8 transition-[padding]', className]}>
-    <h1 class="border-b mb-5 font-semibold text-base pb-2">Dom Dom Factory 🏭</h1>
     <slot />
   </body>
 </html>

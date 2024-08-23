@@ -1,0 +1,53 @@
+---
+import Layout from '../_layout.astro';
+---
+
+<Layout title="Headless Custom Select">
+  <h1 class="border-b mb-5 text-base pb-2 flex gap-2.5">
+    <a href="/" class="no-underline">🏭</a>
+    <div>/</div><div class="font-semibold">Headless Custom Select</div>
+  </h1>
+
+  <main>
+    <div id="my-custom-select"></div>
+  </main>
+</Layout>
+
+<script>
+  import { $ } from '../../../lib/dom';
+  import { createCustomSelect } from '../../../lib/custom-select';
+
+  import optionsDigimon from './_options.digimon.json';
+
+  createCustomSelect('#my-custom-select', {
+    data: optionsDigimon,
+    content: {
+      placeholder: 'Select a digimon...',
+      optionItem: {
+        label: (option, { isSelected }) => [
+          $('div', { textContent: option.label }),
+          isSelected && $('div', { textContent: '✅' }),
+        ],
+      },
+      deselectButton: () => '❌',
+    },
+    className: {
+      container: 'relative',
+      buttonContainer:
+        'flex border rounded-md overflow-clip bg-white data-[focus]:border-blue-500 text-gray-400 data-[has-value=true]:text-black data-[has-value=true]:font-medium',
+      triggerButton: 'flex-1 text-left relative py-3 pl-3.5 pr-8 outline-none',
+      deselectButton: 'py-2 px-3 bg-gray-100 outline-none focus:bg-red-100',
+      dropdownContainer:
+        'absolute mt-0.5 w-full bg-white border rounded-md z-10 bg-white shadow-md pb-2 data-[open=false]:hidden',
+      searchInput: 'w-full p-3.5 outline-none border-b bg-transparent',
+      optionsContainer: 'max-h-[calc(100vh_-_20rem)] overflow-y-auto',
+      optionGroup:
+        'px-3.5 pt-3 pb-2 border-t first:border-t-0 text-gray-400 text-xs mt-2 first:mt-0',
+      optionItem:
+        'pl-6 pr-5 py-1 cursor-pointer hover:bg-gray-100 flex justify-between items-center gap-2',
+      optionHighlighted: '!bg-blue-500 text-white',
+      optionSelected: 'bg-gray-200',
+      noResult: 'px-3.5 pt-3 pb-1 text-red-500',
+    },
+  });
+</script>
