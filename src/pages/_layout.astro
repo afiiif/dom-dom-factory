@@ -50,6 +50,10 @@ const { title = 'Dom Dom Factory', className = 'max-w-2xl mx-auto' } = Astro.pro
     }
   }
 
+  .h2 {
+    @apply text-2xl font-semibold pb-2 mt-11;
+  }
+
   code {
     @apply bg-gray-200 px-1 py-px rounded text-xs;
   }
@@ -60,5 +64,13 @@ const { title = 'Dom Dom Factory', className = 'max-w-2xl mx-auto' } = Astro.pro
     > code {
       all: unset;
     }
+  }
+
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
   }
 </style>

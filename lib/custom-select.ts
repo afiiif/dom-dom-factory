@@ -1,8 +1,25 @@
-import { $, type Child } from './dom';
+import { $, type Child, type ClassValue } from './dom';
+
+export type CustomSelectClassName = {
+  container?: ClassValue;
+  buttonContainer?: ClassValue;
+  button?: ClassValue;
+  deselectButton?: ClassValue;
+  dropdownContainer?: ClassValue;
+  helpText?: ClassValue;
+  searchInput?: ClassValue;
+  optionsContainer?: ClassValue;
+  optionGroup?: ClassValue;
+  optionItem?: ClassValue;
+  optionHighlighted?: ClassValue;
+  optionSelected?: ClassValue;
+  noResult?: ClassValue;
+};
 
 export type CustomSelectConfig<TOption, TMultiple extends boolean = false> = {
-  data: Array<{ groupName: string; options: TOption[] }>;
-  enableSearch?: boolean;
+  data: Array<{ groupName?: string; options: TOption[] }>;
+  initialValue?: TMultiple extends true ? Set<TOption> : null | TOption;
+  enableSearch?: boolean | (() => boolean);
   isDisabled?: boolean;
   isMultiple?: TMultiple;
   hook?: {
@@ -18,9 +35,12 @@ export type CustomSelectConfig<TOption, TMultiple extends boolean = false> = {
         props: { isSelected: boolean; isDisabled: boolean }
       ) => Child | Child[];
       isVisible?: (option: TOption, search: string) => boolean;
-      isDisabled?: (option: TOption, selectedOption: null | TOption) => boolean;
+      isDisabled?: (
+        option: TOption,
+        selectedOption: TMultiple extends true ? Set<TOption> : null | TOption
+      ) => boolean;
     };
-    triggerButton?: TMultiple extends true
+    button?: TMultiple extends true
       ? (selectedOptions: Set<TOption>) => Child | Child[]
       : (selectedOption: TOption) => Child | Child[];
     placeholder?: Child | Child[];
@@ -29,32 +49,21 @@ export type CustomSelectConfig<TOption, TMultiple extends boolean = false> = {
     deselectButton?: Child | Child[];
     noResult?: Child | Child[];
   };
-  className?: {
-    container?: string;
-    buttonContainer?: string;
-    triggerButton?: string;
-    deselectButton?: string;
-    dropdownContainer?: string;
-    helpText?: string;
-    searchInput?: string;
-    optionsContainer?: string;
-    optionGroup?: string;
-    optionItem?: string;
-    optionHighlighted?: string;
-    optionSelected?: string;
-    noResult?: string;
-  };
+  className?:
+    | CustomSelectClassName
+    | ((config: CustomSelectConfig<TOption, TMultiple>) => CustomSelectClassName);
 };
 
 const noop = () => {};
+const noStyle = {};
 
-export function createCustomSelect<TOption, TMultiple extends boolean = false>(
+export function Select<TOption, TMultiple extends boolean = false>(
   container: string | HTMLElement,
   config: CustomSelectConfig<TOption, TMultiple>
 ) {
   type Param = CustomSelectConfig<TOption, TMultiple>;
   type ParamHook = NonNullable<Param['hook']>;
-  type ParamContentOption = NonNullable<NonNullable<Param['content']>>['optionItem'];
+  type ParamContentOption = NonNullable<NonNullable<NonNullable<Param['content']>>['optionItem']>;
 
   /*
   .
@@ -66,31 +75,49 @@ export function createCustomSelect<TOption, TMultiple extends boolean = false>(
   */
 
   let defaultOptionItem = {} as {
-    label: NonNullable<NonNullable<ParamContentOption>['label']>;
-    isVisible: NonNullable<NonNullable<ParamContentOption>['isVisible']>;
+    label: NonNullable<ParamContentOption['label']>;
+    isVisible: NonNullable<ParamContentOption['isVisible']>;
+    isDisabled: NonNullable<ParamContentOption['isDisabled']>;
   };
   const hasLabelProp = typeof (config.data[0]?.options[0] as any)?.label === 'string';
   if (hasLabelProp) {
     defaultOptionItem = {
       label: (option: any, props: any) => `${option.label}${props.isSelected ? ' ✅' : ''}`,
       isVisible: (option: any, search: string) => option.label.toLowerCase().includes(search),
+      isDisabled: (option: any) => option.isDisabled,
     };
   } else {
     defaultOptionItem = {
       label: (option: any, props: any) => `${option}${props.isSelected ? ' ✅' : ''}`,
       isVisible: (option: any, search: string) => option.toLowerCase().includes(search),
+      isDisabled: () => false,
     };
   }
 
   const {
     data,
+    initialValue,
     enableSearch = true,
     isDisabled,
     isMultiple,
     hook = {},
     content = {},
-    className = {},
+    className: classNameOrFn = noStyle,
   } = config;
+
+  const classNameCanBeArray =
+    typeof classNameOrFn === 'function' ? classNameOrFn(config) : classNameOrFn;
+  const className: Partial<Record<keyof CustomSelectClassName, string>> = {};
+  for (const key in classNameCanBeArray) {
+    const classValue = classNameCanBeArray[key as keyof CustomSelectClassName];
+    className[key as keyof CustomSelectClassName] = (
+      Array.isArray(classValue) ? classValue : [classValue]
+    )
+      .filter(Boolean)
+      .join(' ');
+  }
+
+  const isNoStyle = classNameOrFn === noStyle;
 
   const {
     onChange = noop as NonNullable<ParamHook['onChange']>,
@@ -98,11 +125,11 @@ export function createCustomSelect<TOption, TMultiple extends boolean = false>(
   } = hook;
 
   const {
-    optionItem = {} as NonNullable<ParamContentOption>,
-    triggerButton = isMultiple
+    optionItem = {} as ParamContentOption,
+    button = isMultiple
       ? (selectedOption: Set<TOption>) => `${selectedOption.size} selected`
       : (selectedOption: any) => (defaultOptionItem.label as any)(selectedOption, {}),
-    placeholder = 'Select an option...',
+    placeholder = isMultiple ? 'Select some options...' : 'Select an option...',
     helpText,
     searchPlaceholder = 'Search...',
     deselectButton = '×',
@@ -112,7 +139,7 @@ export function createCustomSelect<TOption, TMultiple extends boolean = false>(
   const {
     label: getOptionLabel = defaultOptionItem.label,
     isVisible: isVisibleFn = defaultOptionItem.isVisible,
-    isDisabled: isDisabledFn = () => false,
+    isDisabled: isDisabledFn = defaultOptionItem.isDisabled,
   } = optionItem;
 
   const optionsFlat = data.flatMap((group) => group.options);
@@ -129,11 +156,12 @@ export function createCustomSelect<TOption, TMultiple extends boolean = false>(
   */
 
   let state = {
-    selectedOption: null as null | TOption,
-    selectedOptions: new Set<TOption>(),
+    selectedOption: (initialValue || null) as null | TOption,
+    selectedOptions: (initialValue as Set<TOption>) || new Set<TOption>(),
     filteredOptions: data,
     filteredOptionsFlat: optionsFlat,
     isOpen: false,
+    isFocusMoved: false,
     isDisabled: isDisabled,
     activeIndex: -1,
   };
@@ -240,19 +268,27 @@ export function createCustomSelect<TOption, TMultiple extends boolean = false>(
     if (state.isOpen) return;
     elm.dropdown.style.removeProperty('pointer-events');
     state.isOpen = true;
+    state.isFocusMoved = false;
     onOpenChange(true);
     filterAndRenderOptions('');
 
     const rect = elm.buttonContainer.getBoundingClientRect();
-    const spaceAbove = rect.top;
-    const spaceBelow = window.innerHeight - rect.bottom;
-    const dropdownPosition = spaceBelow > spaceAbove ? 'below' : 'above';
+
+    const spaceTop = rect.top;
+    const spaceBottom = window.innerHeight - rect.bottom;
+    const widerVerticalSpace = spaceBottom > spaceTop ? 'bottom' : 'top';
+
+    const spaceLeft = rect.left;
+    const spaceRight = window.innerWidth - rect.right;
+    const widerHorizontalSpace = spaceRight > spaceLeft ? 'right' : 'left';
 
     elm.root.dataset.open = 'true';
     elm.dropdown.dataset.open = 'true';
     elm.buttonContainer.dataset.open = 'true';
-    elm.dropdown.dataset.dropdownPosition = dropdownPosition;
-    elm.buttonContainer.dataset.dropdownPosition = dropdownPosition;
+    elm.dropdown.dataset.widerVerticalSpace = widerVerticalSpace;
+    elm.buttonContainer.dataset.widerVerticalSpace = widerVerticalSpace;
+    elm.dropdown.dataset.widerHorizontalSpace = widerHorizontalSpace;
+    elm.buttonContainer.dataset.widerHorizontalSpace = widerHorizontalSpace;
     elm.button.setAttribute('aria-expanded', 'true');
 
     let selectedElement: null | Element = null;
@@ -275,10 +311,14 @@ export function createCustomSelect<TOption, TMultiple extends boolean = false>(
       elm.optionsContainer.scrollTop = 0;
     }
 
-    if (enableSearch) {
+    const enableSearch_ = typeof enableSearch === 'function' ? enableSearch() : enableSearch;
+    if (enableSearch_) {
+      elm.searchInput.style.removeProperty('display');
       setTimeout(() => {
         elm.searchInput.focus();
       }, 1);
+    } else {
+      elm.searchInput.style.display = 'none';
     }
   };
 
@@ -295,7 +335,8 @@ export function createCustomSelect<TOption, TMultiple extends boolean = false>(
     elm.dropdown.style.pointerEvents = 'none';
     timeoutEmptyDropdown = window.setTimeout(() => {
       elm.optionsContainer.innerHTML = '';
-    }, 1000);
+      elm.searchInput.style.display = 'none';
+    }, 800);
   };
 
   const toggle = () => {
@@ -321,14 +362,14 @@ export function createCustomSelect<TOption, TMultiple extends boolean = false>(
       if (state.selectedOptions.size === 0) {
         updateProps(0);
       } else {
-        $.append(elm.button, triggerButton(state.selectedOptions));
+        $.append(elm.button, button(state.selectedOptions));
         updateProps(1);
       }
     } else {
       if (state.selectedOption === null) {
         updateProps(0);
       } else {
-        $.append(elm.button, triggerButton(state.selectedOption));
+        $.append(elm.button, button(state.selectedOption));
         updateProps(1);
       }
     }
@@ -337,7 +378,7 @@ export function createCustomSelect<TOption, TMultiple extends boolean = false>(
   const filterAndRenderOptions = (query = '') => {
     const search = query.toLowerCase();
     state.filteredOptionsFlat = [];
-    state.filteredOptions = data.reduce<Array<{ groupName: string; options: TOption[] }>>(
+    state.filteredOptions = data.reduce<Array<{ groupName?: string; options: TOption[] }>>(
       (acc, group) => {
         const options = group.options.filter((option) => isVisibleFn(option, search));
         if (options.length) {
@@ -359,28 +400,34 @@ export function createCustomSelect<TOption, TMultiple extends boolean = false>(
     } else if (e.key === 'ArrowUp') {
       e.preventDefault();
       moveFocus(-1);
-    } else if (e.key === 'Enter' && state.activeIndex > -1) {
-      e.preventDefault();
-      if (isMultiple) {
-        toggleValue(state.filteredOptionsFlat[state.activeIndex]);
-      } else {
-        setValue(state.filteredOptionsFlat[state.activeIndex]);
-        close();
-        elm.button.focus();
-      }
     } else if (e.key === 'Escape' || e.key === 'Tab') {
       e.preventDefault();
       close();
       elm.button.focus();
+    } else if (state.activeIndex > -1) {
+      if (e.key === 'Enter' || (elm.searchInput.value === '' && e.key === ' ')) {
+        e.preventDefault();
+        if (isMultiple) {
+          toggleValue(state.filteredOptionsFlat[state.activeIndex]);
+        } else {
+          setValue(state.filteredOptionsFlat[state.activeIndex]);
+          close();
+          elm.button.focus();
+        }
+      }
     }
   };
 
   const moveFocus = (direction: number) => {
+    state.isFocusMoved = true;
     let newIndex = state.activeIndex + direction;
+    const selected = (
+      isMultiple ? state.selectedOptions : state.selectedOption
+    ) as TMultiple extends true ? Set<TOption> : TOption | null;
     while (
       newIndex >= 0 &&
       newIndex < state.filteredOptionsFlat.length &&
-      isDisabledFn(state.filteredOptionsFlat[newIndex], state.selectedOption)
+      isDisabledFn(state.filteredOptionsFlat[newIndex], selected)
     ) {
       newIndex += direction;
     }
@@ -398,16 +445,18 @@ export function createCustomSelect<TOption, TMultiple extends boolean = false>(
         isMultiple
           ? state.selectedOptions.has(state.filteredOptionsFlat[index]) && className.optionSelected
           : state.selectedOption === state.filteredOptionsFlat[index] && className.optionSelected,
-        index === state.activeIndex && className.optionHighlighted,
+        state.isFocusMoved && index === state.activeIndex && className.optionHighlighted,
       ]
         .filter(Boolean)
         .join(' ');
       if (index === state.activeIndex) {
         $option.setAttribute('aria-selected', 'true');
+        if (isNoStyle) ($option as HTMLLIElement).style.fontWeight = 'bold';
         $option.scrollIntoView({ block: scollBlock });
         elm.searchInput.setAttribute('aria-activedescendant', $option.id);
       } else {
         $option.setAttribute('aria-selected', 'false');
+        if (isNoStyle) ($option as HTMLLIElement).style.removeProperty('font-weight');
       }
     });
   };
@@ -427,13 +476,18 @@ export function createCustomSelect<TOption, TMultiple extends boolean = false>(
           role: 'group',
           textContent: group.groupName,
           className: className.optionGroup,
+          style: isNoStyle ? { fontStyle: 'italic', textDecoration: 'underline' } : undefined,
         }),
       ]);
+      const optionStyle = isNoStyle ? { paddingLeft: '8px' } : undefined;
+      const selected = (
+        isMultiple ? state.selectedOptions : state.selectedOption
+      ) as TMultiple extends true ? Set<TOption> : TOption | null;
       group.options.forEach((option, optionIndex) => {
         const isSelected = isMultiple
           ? state.selectedOptions.has(option)
           : option === state.selectedOption;
-        const isDisabled = isDisabledFn(option, state.selectedOption);
+        const isDisabled = isDisabledFn(option, selected);
         const $option = $(
           'li',
           {
@@ -441,9 +495,8 @@ export function createCustomSelect<TOption, TMultiple extends boolean = false>(
             'aria-selected': 'false', // Highlighted
             'aria-disabled': isDisabled ? 'true' : undefined,
             id: `option-${uniqueId}--${groupIndex}.${optionIndex}`,
-            className: [className.optionItem, isSelected && className.optionSelected]
-              .filter(Boolean)
-              .join(' '),
+            className: [className.optionItem, isSelected && className.optionSelected],
+            style: optionStyle,
             onClick: () => {
               if (!isDisabled) {
                 if (isMultiple) {
@@ -485,7 +538,7 @@ export function createCustomSelect<TOption, TMultiple extends boolean = false>(
     }),
 
     button: $('button', {
-      className: className.triggerButton,
+      className: className.button,
       type: 'button',
       'aria-haspopup': 'listbox',
       'aria-expanded': 'false',
@@ -497,15 +550,11 @@ export function createCustomSelect<TOption, TMultiple extends boolean = false>(
       onFocusout: () => {
         delete elm.buttonContainer.dataset.focus;
       },
-      ...(enableSearch
-        ? {}
-        : {
-            onKeydown: (e: Event) => {
-              if (state.isOpen) {
-                handleKeyDown(e as KeyboardEvent);
-              }
-            },
-          }),
+      onKeydown: (e) => {
+        if (state.isOpen) {
+          handleKeyDown(e);
+        }
+      },
     }),
 
     deselectButton: $('button', {
@@ -528,14 +577,15 @@ export function createCustomSelect<TOption, TMultiple extends boolean = false>(
 
     searchInput: $('input', {
       className: className.searchInput,
+      style: { display: 'none' },
       type: 'text',
       placeholder: searchPlaceholder,
       role: 'textbox',
       'aria-autocomplete': 'list',
       'aria-controls': 'custom-select-options',
       spellcheck: false,
-      onInput: (e: Event) => filterAndRenderOptions((e.target as HTMLInputElement).value),
-      onKeydown: (e: Event) => handleKeyDown(e as KeyboardEvent),
+      onInput: (e) => filterAndRenderOptions((e.target as HTMLInputElement).value),
+      onKeydown: (e) => handleKeyDown(e),
     }),
 
     optionsContainer: $('ul', {
@@ -546,11 +596,11 @@ export function createCustomSelect<TOption, TMultiple extends boolean = false>(
 
   const containerClassNames = (className.container || '').split(' ').filter(Boolean);
   if (containerClassNames.length) elm.root.classList.add(...containerClassNames);
+  elm.root.style.position = 'relative';
   elm.root.dataset.open = 'false';
   if (isDisabled) elm.root.dataset.disabled = 'true';
 
-  if (!enableSearch) elm.searchInput.style.display = 'none';
-
+  elm.root.innerHTML = '';
   $.append(elm.root, [
     $.append(elm.buttonContainer, [
       $.append(elm.button, placeholder),
@@ -562,6 +612,7 @@ export function createCustomSelect<TOption, TMultiple extends boolean = false>(
       elm.optionsContainer,
     ]),
   ]);
+  if (initialValue) updateButton();
 
   function handleClickOutside(e: MouseEvent) {
     if (!elm.button.contains(e.target as Node) && !elm.dropdown.contains(e.target as Node)) {
@@ -580,17 +631,16 @@ export function createCustomSelect<TOption, TMultiple extends boolean = false>(
   */
 
   type GetValue = TMultiple extends true ? () => Set<TOption> : () => TOption | null;
+  type SetValue = TMultiple extends true
+    ? (selectedOptions: TOption[] | ((options: TOption[]) => TOption[])) => void
+    : (selectedOption: TOption | null | ((options: TOption[]) => TOption | null)) => void;
 
   return {
     open,
     close,
     toggle,
     getValue: (isMultiple ? () => state.selectedOptions : () => state.selectedOption) as GetValue,
-    setValue: (isMultiple
-      ? setValueForMultiple
-      : setValueWithOptionChecking) as TMultiple extends true
-      ? (selectedOptions: TOption[] | ((options: TOption[]) => TOption[])) => void
-      : (selectedOption: TOption | null | ((options: TOption[]) => TOption | null)) => void,
+    setValue: (isMultiple ? setValueForMultiple : setValueWithOptionChecking) as SetValue,
     resetValue,
     setIsDisabled,
     element: elm,

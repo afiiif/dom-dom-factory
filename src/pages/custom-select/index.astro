@@ -1,53 +1,208 @@
 ---
+import { Code } from 'astro:components';
+
 import Layout from '../_layout.astro';
 ---
 
 <Layout title="Headless Custom Select">
-  <h1 class="border-b mb-5 text-base pb-2 flex gap-2.5">
+  <div class="border-b mb-5 text-base pb-2 flex gap-2.5">
     <a href="/" class="no-underline">🏭</a>
-    <div>/</div><div class="font-semibold">Headless Custom Select</div>
-  </h1>
+    <div>/</div><h1 class="font-semibold">Headless Custom Select</h1>
+  </div>
 
   <main>
-    <div id="my-custom-select"></div>
+    <h2 class="h2">Default <span class="text-gray-400">(Unstyled)</span></h2>
+    <div class="h-2"></div>
+    <div id="no-style"></div>
+    <Code
+      class="mt-5"
+      lang="astro"
+      code={`<div id="no-style"></div>\n\n<script>\n  import { Select } from '../lib/custom-select';\n  import digimonOptions from './digimons.json';\n\n  Select('#no-style', { data: digimonOptions });\n</script>`}
+    />
+
+    <h2 class="h2">Styled</h2>
+    <div class="h-2"></div>
+    <div id="styled"></div>
+    <div class="h-3"></div>
+    <div id="styled-multi"></div>
+
+    <Code
+      class="mt-5"
+      lang="astro"
+      code={`<div id="styled"></div>
+
+<script>
+  import { $ } from '../lib/dom';
+  import { Select, type CustomSelectClassName } from '../lib/custom-select';
+  import digimonOptions from './digimons.json';
+
+  Select('#styled', {
+    data: digimonOptions,
+    content: {
+      placeholder: 'Select digimon...',
+      helpText: 'Choose your digimon partner',
+      button: (selectedOption) => {
+        const selectedGroup = digimonOptions.find((group) =>
+          group.options.some((option) => option === selectedOption)
+        );
+        return [
+          $('img', {
+            src: \`/img/\${selectedOption.value}.gif\`,
+            className: 'mr-1 size-6 -my-0.5 -ml-1',
+            style: { imageRendering: 'pixelated' },
+          }),
+          selectedOption.label,
+          $('span', { className: 'font-light text-gray-500' }, \`(\${selectedGroup!.groupName})\`),
+        ];
+      },
+    },
+    className: {
+      buttonContainer: [
+        'inline-flex border rounded-md relative z-20 bg-white overflow-hidden',
+        'data-[focus]:border-orange-500 data-[focus]:ring data-[focus]:ring-orange-500/25',
+        'data-[open=true]:border-orange-500 md:data-[open=true]:z-40',
+      ],
+      button: [
+        'outline-none relative py-2.5 pl-3.5 pr-9 text-gray-500 flex gap-1 items-center',
+        '[[data-has-value="true"]>&]:text-gray-800 [[data-has-value="true"]>&]:font-medium',
+        'before:[content:"▼"] before:absolute before:top-1/2 before:-translate-y-1/2 before:right-3 before:scale-x-[1.3] before:scale-y-[0.75]',
+      ],
+      dropdownContainer: [
+        'bg-white border overflow-hidden',
+        'fixed bottom-0 inset-x-0 z-30 rounded-t-2xl',
+        'transition-all duration-500 opacity-100 translate-y-0 shadow-[0_0_0_999rem_rgba(0,0,0,.5)]',
+        'data-[open=false]:opacity-0 data-[open=false]:translate-y-20 data-[open=false]:shadow-[0_0_0_999rem_rgba(0,0,0,0)]',
+        'md:absolute md:rounded-md md:mt-1',
+        'md:shadow-none md:bottom-auto md:inset-x-auto md:data-[open=false]:shadow-none',
+        'md:data-[open=false]:-translate-y-11',
+      ],
+      helpText: 'px-3.5 py-3 border-b font-semibold md:text-xs md:py-1.5 md:bg-gray-100',
+      searchInput: 'w-full px-3.5 py-3 outline-none border-b bg-transparent',
+      optionsContainer: 'max-h-[calc(100vh_-_12rem)] overflow-y-auto pb-2 md:max-h-96',
+      optionGroup: [
+        'px-3.5 pt-3 pb-1.5 text-gray-500 text-xs',
+        'border-t first:border-t-0 mt-2 first:mt-0',
+      ],
+      optionItem: [
+        'pl-5 pr-3.5 py-1.5 md:py-1 cursor-pointer flex items-center',
+        'hover:bg-gray-100 [&[aria-disabled]]:text-gray-300',
+      ],
+      optionSelected: 'bg-gray-200',
+      optionHighlighted: '!bg-orange-600 text-white',
+      noResult: 'px-3.5 py-12 text-red-500 text-center md:py-2 md:text-left md:mt-1',
+      deselectButton: 'text-2xl pb-0.5 px-3 bg-gray-50 text-red-500',
+    },
+  });
+</script>`}
+    />
+
+    <div class="h-12"></div>
   </main>
 </Layout>
 
 <script>
   import { $ } from '../../../lib/dom';
-  import { createCustomSelect } from '../../../lib/custom-select';
+  import { Select, type CustomSelectClassName } from '../../../lib/custom-select';
 
-  import optionsDigimon from './_options.digimon.json';
+  import digimonOptions from './_options.digimon.json';
 
-  createCustomSelect('#my-custom-select', {
-    data: optionsDigimon,
+  Select('#no-style', {
+    data: digimonOptions,
+  });
+
+  const className: CustomSelectClassName = {
+    buttonContainer: [
+      'inline-flex border rounded-md relative z-20 bg-white overflow-hidden',
+      'data-[focus]:border-orange-500 data-[focus]:ring data-[focus]:ring-orange-500/25',
+      'data-[open=true]:border-orange-500 md:data-[open=true]:z-40',
+    ],
+    button: [
+      'outline-none relative py-2.5 pl-3.5 pr-9 text-gray-500 flex gap-1 items-center',
+      '[[data-has-value="true"]>&]:text-gray-800 [[data-has-value="true"]>&]:font-medium',
+      'before:[content:"▼"] before:absolute before:top-1/2 before:-translate-y-1/2 before:right-3 before:scale-x-[1.3] before:scale-y-[0.75]',
+    ],
+    dropdownContainer: [
+      'bg-white border overflow-hidden',
+      'fixed bottom-0 inset-x-0 z-30 rounded-t-2xl',
+      'transition-all duration-500 opacity-100 translate-y-0 shadow-[0_0_0_999rem_rgba(0,0,0,.5)]',
+      'data-[open=false]:opacity-0 data-[open=false]:translate-y-20 data-[open=false]:shadow-[0_0_0_999rem_rgba(0,0,0,0)]',
+      'md:absolute md:rounded-md md:mt-1',
+      'md:shadow-none md:bottom-auto md:inset-x-auto md:data-[open=false]:shadow-none',
+      'md:data-[open=false]:-translate-y-11',
+    ],
+    helpText: 'px-3.5 py-3 border-b font-semibold md:text-xs md:py-1.5 md:bg-gray-100',
+    searchInput: 'w-full px-3.5 py-3 outline-none border-b bg-transparent',
+    optionsContainer: 'max-h-[calc(100vh_-_12rem)] overflow-y-auto pb-2 md:max-h-96',
+    optionGroup: [
+      'px-3.5 pt-3 pb-1.5 text-gray-500 text-xs',
+      'border-t first:border-t-0 mt-2 first:mt-0',
+    ],
+    optionItem: [
+      'pl-5 pr-3.5 py-1.5 md:py-1 cursor-pointer flex items-center',
+      'hover:bg-gray-100 [&[aria-disabled]]:text-gray-300',
+    ],
+    optionSelected: 'bg-gray-200',
+    optionHighlighted: '!bg-orange-600 text-white',
+    noResult: 'px-3.5 py-12 text-red-500 text-center md:py-2 md:text-left md:mt-1',
+    deselectButton: 'text-2xl pb-0.5 px-3 bg-gray-50 text-red-500',
+  };
+
+  Select('#styled', {
+    data: digimonOptions,
+    className,
     content: {
-      placeholder: 'Select a digimon...',
-      optionItem: {
-        label: (option, { isSelected }) => [
-          $('div', { textContent: option.label }),
-          isSelected && $('div', { textContent: '✅' }),
-        ],
+      placeholder: 'Select digimon...',
+      helpText: 'Choose your digimon partner',
+      button: (selectedOption) => {
+        const selectedGroup = digimonOptions.find((group) =>
+          group.options.some((option) => option === selectedOption)
+        );
+        return [
+          $('img', {
+            src: `https://fliegenfuerst.github.io/dw1/evolution/img/${selectedOption.value}.gif`,
+            className: 'mr-1 size-6 -my-0.5 -ml-1',
+            style: { imageRendering: 'pixelated' },
+          }),
+          selectedOption.label,
+          $('span', { className: 'font-light text-gray-500' }, `(${selectedGroup!.groupName})`),
+        ];
       },
-      deselectButton: () => '❌',
     },
-    className: {
-      container: 'relative',
-      buttonContainer:
-        'flex border rounded-md overflow-clip bg-white data-[focus]:border-blue-500 text-gray-400 data-[has-value=true]:text-black data-[has-value=true]:font-medium',
-      triggerButton: 'flex-1 text-left relative py-3 pl-3.5 pr-8 outline-none',
-      deselectButton: 'py-2 px-3 bg-gray-100 outline-none focus:bg-red-100',
-      dropdownContainer:
-        'absolute mt-0.5 w-full bg-white border rounded-md z-10 bg-white shadow-md pb-2 data-[open=false]:hidden',
-      searchInput: 'w-full p-3.5 outline-none border-b bg-transparent',
-      optionsContainer: 'max-h-[calc(100vh_-_20rem)] overflow-y-auto',
-      optionGroup:
-        'px-3.5 pt-3 pb-2 border-t first:border-t-0 text-gray-400 text-xs mt-2 first:mt-0',
-      optionItem:
-        'pl-6 pr-5 py-1 cursor-pointer hover:bg-gray-100 flex justify-between items-center gap-2',
-      optionHighlighted: '!bg-blue-500 text-white',
-      optionSelected: 'bg-gray-200',
-      noResult: 'px-3.5 pt-3 pb-1 text-red-500',
+  });
+
+  Select('#styled-multi', {
+    data: digimonOptions,
+    className,
+    isMultiple: true,
+    content: {
+      placeholder: 'Select multiple digimons...',
+      button: (selectedOptions) => {
+        if (selectedOptions.size < 4) return `${selectedOptions.size} selected`;
+        return [
+          '4 selected',
+          $('span', { className: 'font-light text-gray-500' }, '(maximum reached)'),
+        ];
+      },
+      optionItem: {
+        label: (option, { isSelected }) => {
+          if (isSelected) {
+            return [
+              option.label,
+              $('div', { className: 'pl-1.5 pr-3' }, '✅'),
+              $('img', {
+                src: `https://fliegenfuerst.github.io/dw1/evolution/img/${option.value}.gif`,
+                className: 'ml-auto mr-1.5 size-5 -my-0.5',
+                style: { imageRendering: 'pixelated' },
+              }),
+            ];
+          }
+          return option.label;
+        },
+        isDisabled: (option, selectedOptions) => {
+          if (selectedOptions.size < 4) return false;
+          return !selectedOptions.has(option);
+        },
+      },
     },
   });
 </script>

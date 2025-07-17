@@ -1,53 +1,79 @@
 [
   {
-    "groupName": "In-Training",
+    "groupName": "Training",
     "options": [
-      { "value": "koromon", "label": "Koromon" },
-      { "value": "tanemon", "label": "Tanemon" },
-      { "value": "tokomon", "label": "Tokomon" },
-      { "value": "tsunomon", "label": "Tsunomon" }
+      { "value": "Koromon", "label": "Koromon" },
+      { "value": "Tokomon", "label": "Tokomon" },
+      { "value": "Tsunomon", "label": "Tsunomon" },
+      { "value": "Tanemon", "label": "Tanemon" }
     ]
   },
   {
     "groupName": "Rookie",
     "options": [
-      { "value": "agumon", "label": "Agumon" },
-      { "value": "gabumon", "label": "Gabumon" },
-      { "value": "patamon", "label": "Patamon" },
-      { "value": "palmon", "label": "Palmon" },
-      { "value": "biyomon", "label": "Biyomon" },
-      { "value": "elecmon", "label": "Elecmon" },
-      { "value": "penguinmon", "label": "Penguinmon" }
+      { "value": "Agumon", "label": "Agumon" },
+      { "value": "Gabumon", "label": "Gabumon" },
+      { "value": "Patamon", "label": "Patamon" },
+      { "value": "Elecmon", "label": "Elecmon" },
+      { "value": "Biyomon", "label": "Biyomon" },
+      { "value": "Kunemon", "label": "Kunemon" },
+      { "value": "Palmon", "label": "Palmon" },
+      { "value": "Betamon", "label": "Betamon" },
+      { "value": "Penguinmon", "label": "Penguinmon" }
     ]
   },
   {
     "groupName": "Champion",
     "options": [
-      { "value": "greymon", "label": "Greymon" },
-      { "value": "garurumon", "label": "Garurumon" },
-      { "value": "angemon", "label": "Angemon" },
-      { "value": "togemon", "label": "Togemon" },
-      { "value": "birdramon", "label": "Birdramon" },
-      { "value": "kabuterimon", "label": "Kabuterimon" },
-      { "value": "airdramon", "label": "Airdramon" },
-      { "value": "bakemon", "label": "Bakemon" },
-      { "value": "centarumon", "label": "Centarumon" },
-      { "value": "frigimon", "label": "Frigimon" },
-      { "value": "tyrannomon", "label": "Tyrannomon" }
+      { "value": "Greymon", "label": "Greymon" },
+      { "value": "Meramon", "label": "Meramon" },
+      { "value": "Birdramon", "label": "Birdramon" },
+      { "value": "Centarumon", "label": "Centarumon" },
+      { "value": "Monochromon", "label": "Monochromon" },
+      { "value": "Drimogemon", "label": "Drimogemon" },
+      { "value": "Tyrannomon", "label": "Tyrannomon" },
+      { "value": "Devimon", "label": "Devimon" },
+      { "value": "Ogremon", "label": "Ogremon" },
+      { "value": "Leomon", "label": "Leomon" },
+      { "value": "Angemon", "label": "Angemon" },
+      { "value": "Bakemon", "label": "Bakemon" },
+      { "value": "Airdramon", "label": "Airdramon" },
+      { "value": "Kokatorimon", "label": "Kokatorimon" },
+      { "value": "Unimon", "label": "Unimon" },
+      { "value": "Kabuterimon", "label": "Kabuterimon" },
+      { "value": "Kuwagamon", "label": "Kuwagamon" },
+      { "value": "Vegiemon", "label": "Vegiemon" },
+      { "value": "Ninjamon", "label": "Ninjamon" },
+      { "value": "Seadramon", "label": "Seadramon" },
+      { "value": "Whamon", "label": "Whamon" },
+      { "value": "Shellmon", "label": "Shellmon" },
+      { "value": "Coelamon", "label": "Coelamon" },
+      { "value": "Garurumon", "label": "Garurumon" },
+      { "value": "Frigimon", "label": "Frigimon" },
+      { "value": "Mojyamon", "label": "Mojyamon" },
+      { "value": "Numemon", "label": "Numemon" },
+      { "value": "Sukamon", "label": "Sukamon" },
+      { "value": "Nanimon", "label": "Nanimon" }
     ]
   },
   {
     "groupName": "Ultimate",
     "options": [
-      { "value": "metalgreymon", "label": "MetalGreymon" },
-      { "value": "weregarurumon", "label": "WereGarurumon" },
-      { "value": "magnaangemon", "label": "MagnaAngemon" },
-      { "value": "lillymon", "label": "Lillymon" },
-      { "value": "garudamon", "label": "Garudamon" },
-      { "value": "megakabuterimon", "label": "MegaKabuterimon" },
-      { "value": "skullgreymon", "label": "SkullGreymon" },
-      { "value": "digitamamon", "label": "Digitamamon" },
-      { "value": "andromon", "label": "Andromon" }
+      { "value": "MetalGreymon", "label": "MetalGreymon" },
+      { "value": "Andromon", "label": "Andromon" },
+      { "value": "SkullGreymon", "label": "SkullGreymon" },
+      { "value": "Megadramon", "label": "Megadramon" },
+      { "value": "Giromon", "label": "Giromon" },
+      { "value": "Phoenixmon", "label": "Phoenixmon" },
+      { "value": "H-Kabuterimon", "label": "HerculesKabuterimon" },
+      { "value": "Piximon", "label": "Piximon" },
+      { "value": "Mamemon", "label": "Mamemon" },
+      { "value": "MetalMamemon", "label": "MetalMamemon" },
+      { "value": "Monzaemon", "label": "Monzaemon" },
+      { "value": "MegaSeadramon", "label": "MegaSeadramon" },
+      { "value": "Vademon", "label": "Vademon" },
+      { "value": "Digitamamon", "label": "Digitamamon" },
+      { "value": "Etemon", "label": "Etemon" }
     ]
   }
 ]
