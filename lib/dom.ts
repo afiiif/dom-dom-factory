@@ -3,16 +3,13 @@ export type Ref<TElement> = {
   render: (type?: 'all' | 'props' | 'children') => void;
 };
 
+export type ClassValue = string | boolean | null | Array<string | boolean | undefined | null>;
+
 type Props<TElement> = Record<string & {}, any> &
-  Partial<
-    Record<`on${Capitalize<keyof HTMLElementEventMap>}`, EventListenerOrEventListenerObject>
-  > &
   Partial<{
-    className: string | boolean | null | Array<string | boolean | undefined | null>;
+    className: ClassValue;
     style: Partial<Record<keyof CSSStyleDeclaration, any>>;
-    textContent: string;
     data: Record<string, any>;
-    role: string;
     ref:
       | Partial<Ref<TElement>>
       | ((ref: Ref<TElement>) => void)
@@ -22,7 +19,21 @@ type Props<TElement> = Record<string & {}, any> &
           | ((ref: Ref<TElement>) => void)
           | Map<Element, Ref<Element>['render']>
         >;
-  }>;
+  }> &
+  Partial<{
+    [K in keyof HTMLElementEventMap as `on${Capitalize<K>}`]: (
+      e: Omit<HTMLElementEventMap[K], 'currentTarget'> & {
+        currentTarget: TElement;
+        target: HTMLElement;
+      }
+    ) => void;
+  }> & {
+    [K in keyof TElement as K extends `on${string}` | 'style' | 'className' | 'classList'
+      ? never
+      : TElement[K] extends Function
+      ? never
+      : K]?: TElement[K];
+  };
 
 export type Child =
   | undefined
