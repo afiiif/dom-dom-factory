@@ -20,6 +20,7 @@ export type CustomSelectConfig<TOption, TMultiple extends boolean = false> = {
   data: Array<{ groupName?: string; options: TOption[] }>;
   initialValue?: TMultiple extends true ? Set<TOption> : null | TOption;
   enableSearch?: boolean | (() => boolean);
+  autoFocusSearch?: boolean | (() => boolean);
   isDisabled?: boolean;
   isMultiple?: TMultiple;
   hook?: {
@@ -48,6 +49,8 @@ export type CustomSelectConfig<TOption, TMultiple extends boolean = false> = {
     searchPlaceholder?: string;
     deselectButton?: Child | Child[];
     noResult?: Child | Child[];
+    beforeList?: Child;
+    afterList?: Child;
   };
   className?:
     | CustomSelectClassName
@@ -98,6 +101,7 @@ export function Select<TOption, TMultiple extends boolean = false>(
     data,
     initialValue,
     enableSearch = true,
+    autoFocusSearch = true,
     isDisabled,
     isMultiple,
     hook = {},
@@ -134,6 +138,8 @@ export function Select<TOption, TMultiple extends boolean = false>(
     searchPlaceholder = 'Search...',
     deselectButton = '×',
     noResult = 'No results found',
+    beforeList,
+    afterList,
   } = content;
 
   const {
@@ -313,10 +319,14 @@ export function Select<TOption, TMultiple extends boolean = false>(
 
     const enableSearch_ = typeof enableSearch === 'function' ? enableSearch() : enableSearch;
     if (enableSearch_) {
+      const autoFocusSearch_ =
+        typeof autoFocusSearch === 'function' ? autoFocusSearch() : autoFocusSearch;
       elm.searchInput.style.removeProperty('display');
-      setTimeout(() => {
-        elm.searchInput.focus();
-      }, 1);
+      if (autoFocusSearch_) {
+        setTimeout(() => {
+          elm.searchInput.focus();
+        }, 1);
+      }
     } else {
       elm.searchInput.style.display = 'none';
     }
@@ -609,7 +619,9 @@ export function Select<TOption, TMultiple extends boolean = false>(
     $.append(elm.dropdown, [
       helpText ? $('div', { className: className.helpText }, helpText) : undefined,
       elm.searchInput,
+      beforeList,
       elm.optionsContainer,
+      afterList,
     ]),
   ]);
   if (initialValue) updateButton();
