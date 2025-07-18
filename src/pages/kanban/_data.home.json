@@ -1,0 +1,40 @@
+{
+  "title": "Home",
+  "boards": [
+    {
+      "title": "To-Do",
+      "cards": [
+        {
+          "title": "Clean bathroom"
+        },
+        {
+          "title": "Repair the window"
+        }
+      ]
+    },
+    {
+      "title": "Inprogress 👨🏻",
+      "color": "#bfdbfe",
+      "cards": []
+    },
+    {
+      "title": "Inprogress 👱🏻‍♀️",
+      "color": "#fbcfe8",
+      "cards": [
+        {
+          "title": "Buy groceries",
+          "description": "Get ingredients for the week.",
+          "subtasks": [
+            { "title": "Eggs", "isDone": true },
+            { "title": "Avocado" },
+            { "title": "Coconut" }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Done 🥳",
+      "cards": []
+    }
+  ]
+}

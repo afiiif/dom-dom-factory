@@ -28,7 +28,12 @@ type Props<TElement> = Record<string & {}, any> &
       }
     ) => void;
   }> & {
-    [K in keyof TElement as K extends `on${string}` | 'style' | 'className' | 'classList'
+    [K in keyof TElement as K extends
+      | `on${string}`
+      | 'style'
+      | 'className'
+      | 'classList'
+      | 'dataset'
       ? never
       : TElement[K] extends Function
       ? never

@@ -1,0 +1,20 @@
+---
+import Layout from '../_layout.astro';
+---
+
+<Layout className="">
+  <div id="example-kanban"></div>
+</Layout>
+
+<script>
+  import { $ } from '../../../lib/dom';
+
+  import kanbanHome from './_data.home.json';
+  import kanbanOffice from './_data.office.json';
+  import { Kanban } from './kanban';
+
+  $(document.querySelector('#example-kanban')! as HTMLDivElement, {}, [
+    Kanban(kanbanOffice),
+    Kanban(kanbanHome),
+  ]);
+</script>

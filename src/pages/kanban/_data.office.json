@@ -1,0 +1,51 @@
+{
+  "title": "Office",
+  "boards": [
+    {
+      "title": "Backlog",
+      "cards": [
+        {
+          "title": "Create a techdeb list"
+        }
+      ]
+    },
+    {
+      "color": "#fcd34d",
+      "title": "To-Do",
+      "cards": [
+        {
+          "title": "Attend weekly meeting"
+        },
+        {
+          "title": "Complete sprint report",
+          "description": "Summary of the completed sprint."
+        },
+        {
+          "title": "Review PRs",
+          "subtasks": [
+            { "title": "PR #12", "isDone": true },
+            { "title": "PR #13", "isDone": true },
+            { "title": "PR #14" },
+            { "title": "PR #15" }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Inprogress",
+      "cards": []
+    },
+    {
+      "title": "Done",
+      "cards": [
+        {
+          "title": "Develop kanban board"
+        }
+      ]
+    },
+    {
+      "title": "Cancelled",
+      "cards": []
+    }
+  ]
+}

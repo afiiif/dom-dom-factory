@@ -10,7 +10,7 @@ interface Props {
   title?: string;
   className?: string;
 }
-const { title = 'Dom Dom Factory', className = 'max-w-2xl mx-auto' } = Astro.props;
+const { title = 'Dom Dom Factory', className = 'px-3.5 max-w-2xl mx-auto' } = Astro.props;
 ---
 
 <html lang="en">
@@ -33,7 +33,7 @@ const { title = 'Dom Dom Factory', className = 'max-w-2xl mx-auto' } = Astro.pro
     <meta name="twitter:card" content="summary_large_image" />
   </head>
 
-  <body class:list={['px-3.5 py-6 md:py-8 transition-[padding]', className]}>
+  <body class:list={['py-6 md:py-8 transition-[padding]', className]}>
     <slot />
   </body>
 </html>
